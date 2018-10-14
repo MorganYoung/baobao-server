@@ -15,6 +15,7 @@ var pool = mysql.createPool({
 var SQL = {
 	insertRecord:'INSERT INTO record(action,time,uid) VALUES(?,?,?)',
 	queryAllRecordByUid:'SELECT * FROM record where uid = ? order by time desc',
+	queryRecordPage:'SELECT * FROM record where uid = ? order by time desc limit ?, ?',
 	getUserById:'SELECT * FROM User WHERE uid = ? '
 };
 
@@ -67,9 +68,10 @@ router.post('/record', function (req, res, next) {
 router.post('/record/list', function(req, res, next){
 	var data = req.body;
 	console.log(new Date(), "body:" , data);
-	pool.getConnection(function(err, connection){
-		connection.query(SQL.queryAllRecordByUid, [data.uid], function(err, result){
+	pool.getConnection(function(err, connection) {
+		connection.query(SQL.queryRecordPage, [data.uid, data.index, data.page], function(err, result){
 			if(result) {
+				console.log("return :" + JSON.stringify(result));
 				res.send(result);
 			}
 			if(err) {
